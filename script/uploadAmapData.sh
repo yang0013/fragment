@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# 上传经纬数据文件到高德云图
+#
 
 dir=/uploadDir
 tableid=xxxxxxx

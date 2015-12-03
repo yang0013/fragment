@@ -4,7 +4,6 @@
 #include <math.h>  
 #include <cstdlib>
 #include <cstdio>
-#include <iomanip>
 #include <string>
 #include <iostream>
 #include <fstream>  
@@ -15,6 +14,26 @@ using namespace std;
   
 const double x_pi = 3.14159265358979324 * 3000.0 / 180.0;  
   
+// bd_encrypt 将 GCJ-02 坐标转换成 BD-09 坐标
+void bd_encrypt(double gg_lat, double gg_lon, double &bd_lat, double &bd_lon)  
+{  
+    double x = gg_lon, y = gg_lat;  
+    double z = sqrt(x * x + y * y) + 0.00002 * sin(y * x_pi);  
+    double theta = atan2(y, x) + 0.000003 * cos(x * x_pi);  
+    bd_lon = z * cos(theta) + 0.0065;  
+    bd_lat = z * sin(theta) + 0.006;  
+}  
+  
+// BD-09 坐标转换成 GCJ-02 坐标
+void bd_decrypt(double bd_lat, double bd_lon, double &gg_lat, double &gg_lon)  
+{  
+    double x = bd_lon - 0.0065, y = bd_lat - 0.006;  
+    double z = sqrt(x * x + y * y) - 0.00002 * sin(y * x_pi);  
+    double theta = atan2(y, x) - 0.000003 * cos(x * x_pi);  
+    gg_lon = z * cos(theta);  
+    gg_lat = z * sin(theta);  
+}  
+
 template <class Type>  
 Type stringToNum(string& str)  
 {  
@@ -46,26 +65,6 @@ vector<string> split(string str,string pattern)
     return result;  
 }  
 
-// bd_encrypt 将 GCJ-02 坐标转换成 BD-09 坐标
-void bd_encrypt(double gg_lat, double gg_lon, double &bd_lat, double &bd_lon)  
-{  
-    double x = gg_lon, y = gg_lat;  
-    double z = sqrt(x * x + y * y) + 0.00002 * sin(y * x_pi);  
-    double theta = atan2(y, x) + 0.000003 * cos(x * x_pi);  
-    bd_lon = z * cos(theta) + 0.0065;  
-    bd_lat = z * sin(theta) + 0.006;  
-}  
-  
-// BD-09 坐标转换成 GCJ-02 坐标
-void bd_decrypt(double bd_lat, double bd_lon, double &gg_lat, double &gg_lon)  
-{  
-    double x = bd_lon - 0.0065, y = bd_lat - 0.006;  
-    double z = sqrt(x * x + y * y) - 0.00002 * sin(y * x_pi);  
-    double theta = atan2(y, x) - 0.000003 * cos(x * x_pi);  
-    gg_lon = z * cos(theta);  
-    gg_lat = z * sin(theta);  
-}  
-
 int main(int argc, char *argv[]) {
 
     if (argc != 3 ) {
@@ -79,7 +78,7 @@ int main(int argc, char *argv[]) {
     
     char *file = argv[1];
     char *outfile = argv[2];
-	cout << "infile: " << file << " outfile:" << outfile << endl;
+    cout << "infile: " << file << " outfile:" << outfile << endl;
     in.open(file, ios::in);
     out.open(outfile, ios::out);
     out.precision(15);
