@@ -1,0 +1,39 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
+# Settings
+
+SMTP_SERVER = 'smtp.163.com'
+SMTP_PORT = 25
+SMTP_USERNAME = 'x'
+SMTP_PASSWORD = 'x'
+SMTP_FROM = 'xxx@xxx.com'
+SMTP_TO = ['x@xxx.com', 'x@xxx.com']
+
+# Now construct the message
+import smtplib, email
+from email import encoders
+from email.mime.text import MIMEText
+import os,sys
+import datetime
+
+if len(sys.argv) < 2:
+	exit()
+
+staDateStr=sys.argv[1]
+
+#staDate = datetime.date.today() + datetime.timedelta(-2)
+#staDateStr = staDate.strftime('%Y%m%d')
+textfile = staDateStr + '.txt'
+fp = open(textfile, 'rb')
+msg = MIMEText(fp.read())
+fp.close()
+msg['Subject'] = 'AppStore下载量统计-%s' % staDateStr
+msg['From'] = SMTP_FROM
+msg['To'] = ", ".join(SMTP_TO)
+
+# Now send the message
+mailer = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+mailer.login(SMTP_USERNAME, SMTP_PASSWORD)
+mailer.sendmail(SMTP_FROM, SMTP_TO, msg.as_string())
+mailer.close()
